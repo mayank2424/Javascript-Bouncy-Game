@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+	
+	<head>
+		<title>JS GaMe</title>
+		<link href="style.css" rel="stylesheet">
+	</head>
+	<body> 
+
+		<h1>Simply Bouncy For Fun</h1>
+		<canvas id="mycanvas" width="480" height="500"></canvas>  
+          <div id="reset" class="re"><a href="#">Restart</a></div>
+          <div id="start" class="on">Start The Game</div>
+	</body>
+    <script src="jquery.js"></script>
+	<script>
+		var canvas= document.getElementById("mycanvas")  
+		var ctx=canvas.getContext("2d");    //here 2d is rendering contect , basically it is a tool we used to paint on canvas like making moving objects or shapes
+		var x= canvas.width/2;
+		var y= canvas.height-30;
+		var dx=2;                   //basically this refers to movement variable means it will call every time and it will move 2 px
+        var dy=-2;
+        var ballRadius=10
+        var sliderWidth=75;
+        var sliderHeight= 10;
+         var sliderX=(canvas.width-sliderWidth)/2;
+         //here right and false are refers to slider movements
+        var right=false;  
+        var left=false;
+        var brickC=5;
+        var brickR=3;
+        var brickHeight=20;
+        var brickWidth=75;
+        var brickPadding= 10;
+        var offSetTop=30;
+        var offSetLeft=30;
+         var score=0;
+        var bricks=[]
+        for(c=0;c<brickC;c++){
+        	bricks[c]=[];
+
+        	for(r=0;r<brickR;r++){
+        		bricks[c][r]={x:0,y:0,status :1};
+        	}
+        }
+
+
+
+        function brick(){
+
+        	  for(c=0;c<brickC;c++){
+        		 for(r=0;r<brickR;r++){
+                   if(bricks[c][r].status==1){
+        			var brickX=(c*(brickWidth+brickPadding))+offSetLeft;
+        			var brickY=(r*(brickHeight+brickPadding))+offSetTop;
+        			bricks[c][r].x = brickX;
+                    bricks[c][r].y = brickY;
+		        	ctx.beginPath();
+		        	ctx.rect(brickX,brickY,brickWidth,brickHeight);
+		        	ctx.fillStyle="blue";
+		        	ctx.fill();
+		        	ctx.closePath();
+		           }
+                 }
+              }
+           }    
+
+        
+        function yourScore(){
+             ctx.font="16px Arial";
+             ctx.fillStyle="green";
+             ctx.fillText("Score is:" +score,8,20);
+        }
+        function collision(){
+        	for(c=0;c<brickC;c++){
+        		for(r=0;r<brickR;r++){
+        			var b= bricks[c][r];
+                     if(b.status==1){
+        			    if(x>b.x && x<b.x+brickWidth && y>b.y && y<b.y+brickHeight){
+        				  dy=-dy;
+        				 b.status=0;
+        				 score++
+
+        				 if(score==brickR * brickC){
+        				 	alert("You win");
+        				 	document.location.reload();
+        				  }
+        			   } 
+        		    }		
+        		}
+        	}
+        }          
+		function drawBall(){  //Ball graphics context()
+			ctx.beginPath();    //function for begin path means starting the shapev
+			ctx.arc(x,y,ballRadius,0,Math.PI*2);     //here arc reders to circle shape object that is moving
+			ctx.fillStyle="blue";
+			ctx.fill();
+			ctx.closePath();
+		}
+
+
+		function slider(){   //slder graphics context
+			ctx.beginPath();    
+			ctx.rect(sliderX, canvas.height-sliderHeight, sliderWidth, sliderHeight);  //here rect refers to rectangle
+			ctx.fillStyle="red";
+			ctx.fill();
+			ctx.closePath();
+		}
+		
+      	function keyDown(e){   //keydown event is called when key is  pressed
+      		if(e.keyCode==39){
+      			right=true;
+      		}
+      		else if(e.keyCode==37){
+      			left=true;
+      		}
+      	}
+
+      	function keyUp(e){
+      		if(e.keyCode==39){
+      			right=false;
+      		}
+      		else if(e.keyCode==37){
+      			left=false;
+      		}
+      	}
+
+      	document.addEventListener("keydown", keyDown, false);
+        document.addEventListener("keyup", keyUp, false);
+
+
+       function draw(){
+       	ctx.clearRect(0,0,canvas.width,canvas.height);   //clearRect function each time frame reploada to remove earlier frame 
+       	   
+
+
+
+       	  
+
+		       if(y + dy < ballRadius) {
+				    dy = -dy;
+				} 
+
+			   else if(y + dy > canvas.height-ballRadius) {
+				    if(x > sliderX && x < sliderX + sliderWidth) {
+				        dy = -dy;
+				    }
+				    else {
+				        // alert("GAME OVER");
+				        // document.location.reload();
+				        
+				        $('.re').show();
+				        $('#mycanvas').css("opacity",'0.6');
+
+				    }
+				}
+		       if(x+dx>canvas.width-ballRadius || x+dx<ballRadius){   //Jerw also this condition is also called when ball strikes right and left edge
+		       	dx=-dx;
+		       }
+
+		       if(right&&sliderX<canvas.width-sliderWidth){    //This condtion is use for slider not to exceed out from canvas
+		       	sliderX+=7; 
+
+		       }
+
+		       else if(left&&sliderX>0){
+		       	sliderX-=7;
+		       }
+
+
+		         x+=dx;
+			     y+=dy;
+
+			     drawBall();
+			     slider();
+			     brick();
+			     collision();
+			     yourScore();
+       	       
+
+         }
+        var refresh= setInterval(draw,8);
+        clearInterval(refresh);    //Every 10 miliseconf draw function is called and frame is loaded/
+	
+            if(ballRadius==sliderX){
+                 setInterval(drawBall,0);
+             }
+               $('.on').on('click',function(){
+       	      	    setInterval(draw,7);
+       	      	    $('.on').hide();
+       	       })
+                $('.on').show();
+                $('.re').on('click',function(){
+       	       document.location.reload();
+       	      })
+
+	</script>
+
+
+</html>
